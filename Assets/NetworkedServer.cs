@@ -4,7 +4,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using System.IO;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class NetworkedServer : MonoBehaviour
 {
@@ -14,6 +14,7 @@ public class NetworkedServer : MonoBehaviour
     int hostID;
     int socketPort = 5491;
 
+    [System.Obsolete]
     // Start is called before the first frame update
     void Start()
     {
@@ -27,6 +28,7 @@ public class NetworkedServer : MonoBehaviour
     }
 
     // Update is called once per frame
+    [System.Obsolete]
     void Update()
     {
 
@@ -57,7 +59,8 @@ public class NetworkedServer : MonoBehaviour
         }
 
     }
-  
+
+    [System.Obsolete]
     public void SendMessageToClient(string msg, int id)
     {
         byte error = 0;
