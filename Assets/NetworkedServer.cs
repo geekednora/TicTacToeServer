@@ -5,14 +5,21 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.IO;
 using UnityEngine.UIElements;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 public class NetworkedServer : MonoBehaviour
 {
+    /* ~~ USER DATA ~~ */
+
+    private string lg = "root";
+    private string pw = "toor";
+
+    /* ~~ END OF USER DATA ~~ */
     int maxConnections = 1000;
     int reliableChannelID;
     int unreliableChannelID;
     int hostID;
-    int socketPort = 5491;
+    int socketPort = 5492;
 
     [System.Obsolete]
     // Start is called before the first frame update
@@ -31,6 +38,10 @@ public class NetworkedServer : MonoBehaviour
     [System.Obsolete]
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            
+        }
 
         int recHostID;
         int recConnectionID;
@@ -71,6 +82,23 @@ public class NetworkedServer : MonoBehaviour
     private void ProcessRecievedMsg(string msg, int id)
     {
         Debug.Log("msg recieved = " + msg + ".  connection id = " + id);
+    }
+
+    private void Login()
+    {
+
+    }
+
+
+    private void ReadUserLoginReq(string login, string pw)
+    {
+        Debug.Log
+        (
+            "Logging in user... \nUser ID: " +
+            login +
+            "User Password: " +
+            pw
+        );
     }
 
 }
