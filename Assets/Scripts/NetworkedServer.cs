@@ -1,57 +1,51 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
-using System.IO;
-using UnityEngine.UIElements;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 public class NetworkedServer : MonoBehaviour
 {
+    private int _hostID;
     /* ~~ USER DATA ~~ */
 
-    private string lg = "root";
-    private string pw = "toor";
+    private string _lg = "root";
 
     /* ~~ END OF USER DATA ~~ */
-    int maxConnections = 1000;
-    int reliableChannelID;
-    int unreliableChannelID;
-    int hostID;
-    int socketPort = 5492;
+    private readonly int _maxConnections = 1000;
+    private string _pw = "toor";
+    private int _reliableChannelID;
+    private readonly int _socketPort = 5492;
+    private int _unreliableChannelID;
 
-    [System.Obsolete]
+    [Obsolete]
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         NetworkTransport.Init();
-        ConnectionConfig config = new ConnectionConfig();
-        reliableChannelID = config.AddChannel(QosType.Reliable);
-        unreliableChannelID = config.AddChannel(QosType.Unreliable);
-        HostTopology topology = new HostTopology(config, maxConnections);
-        hostID = NetworkTransport.AddHost(topology, socketPort, null);
-        
+        var config = new ConnectionConfig();
+        _reliableChannelID = config.AddChannel(QosType.Reliable);
+        _unreliableChannelID = config.AddChannel(QosType.Unreliable);
+        var topology = new HostTopology(config, _maxConnections);
+        _hostID = NetworkTransport.AddHost(topology, _socketPort, null);
     }
 
     // Update is called once per frame
-    [System.Obsolete]
-    void Update()
+    [Obsolete]
+    private void Update()
     {
         if (Input.GetKeyDown(KeyCode.A))
         {
-            
         }
 
         int recHostID;
         int recConnectionID;
-        int recChannelID;
-        byte[] recBuffer = new byte[1024];
-        int bufferSize = 1024;
+        var recBuffer = new byte[1024];
+        var bufferSize = 1024;
         int dataSize;
         byte error = 0;
 
-        NetworkEventType recNetworkEvent = NetworkTransport.Receive(out recHostID, out recConnectionID, out recChannelID, recBuffer, bufferSize, out dataSize, out error);
+        var recNetworkEvent = NetworkTransport.Receive(out recHostID, out recConnectionID,
+            out _, recBuffer, bufferSize, out dataSize, out error);
 
         switch (recNetworkEvent)
         {
@@ -61,24 +55,23 @@ public class NetworkedServer : MonoBehaviour
                 Debug.Log("Connection, " + recConnectionID);
                 break;
             case NetworkEventType.DataEvent:
-                string msg = Encoding.Unicode.GetString(recBuffer, 0, dataSize);
+                var msg = Encoding.Unicode.GetString(recBuffer, 0, dataSize);
                 ProcessRecievedMsg(msg, recConnectionID);
                 break;
             case NetworkEventType.DisconnectEvent:
                 Debug.Log("Disconnection, " + recConnectionID);
                 break;
         }
-
     }
 
-    [System.Obsolete]
+    [Obsolete]
     public void SendMessageToClient(string msg, int id)
     {
         byte error = 0;
-        byte[] buffer = Encoding.Unicode.GetBytes(msg);
-        NetworkTransport.Send(hostID, id, reliableChannelID, buffer, msg.Length * sizeof(char), out error);
+        var buffer = Encoding.Unicode.GetBytes(msg);
+        NetworkTransport.Send(_hostID, id, _reliableChannelID, buffer, msg.Length * sizeof(char), out error);
     }
-    
+
     private void ProcessRecievedMsg(string msg, int id)
     {
         Debug.Log("msg recieved = " + msg + ".  connection id = " + id);
@@ -86,7 +79,6 @@ public class NetworkedServer : MonoBehaviour
 
     private void Login()
     {
-
     }
 
 
@@ -100,5 +92,4 @@ public class NetworkedServer : MonoBehaviour
             pw
         );
     }
-
 }
