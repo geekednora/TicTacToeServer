@@ -5,27 +5,45 @@ using UnityEngine.Networking;
 
 public class NetworkedServer : MonoBehaviour
 {
-    private int _hostID;
     /* ~~ USER DATA ~~ */
 
     private string _lg = "root";
+    private string _pw = "toor";
 
     /* ~~ END OF USER DATA ~~ */
+    /* ~~ SERVER CONFIGURATION ~~ */
+    
+    private int _hostID;
+    private readonly int _socketPort = 5491;
     private readonly int _maxConnections = 1000;
-    private string _pw = "toor";
+    
     private int _reliableChannelID;
-    private readonly int _socketPort = 5492;
     private int _unreliableChannelID;
+    
+    /* ~~ END OF SERVER CONFIGURATION ~~ */
 
     [Obsolete]
     // Start is called before the first frame update
     private void Start()
     {
-        NetworkTransport.Init();
-        var config = new ConnectionConfig();
+        RunServer();
+    }
+
+    private void RunServer()
+    {
+        NetworkTransport.Init(); // init network protocol
+
+        // declaring vars
+        ConnectionConfig config;
+        HostTopology topology;
+
+        // writing config
+        config = new ConnectionConfig();
         _reliableChannelID = config.AddChannel(QosType.Reliable);
         _unreliableChannelID = config.AddChannel(QosType.Unreliable);
-        var topology = new HostTopology(config, _maxConnections);
+
+        // writing config and connections into topology 
+        topology = new HostTopology(config, _maxConnections);
         _hostID = NetworkTransport.AddHost(topology, _socketPort, null);
     }
 
@@ -33,10 +51,18 @@ public class NetworkedServer : MonoBehaviour
     [Obsolete]
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-        }
+        UpdateNetworkConnection();
 
+        // if (Input.GetKeyDown(KeyCode.S))
+        // {
+        //     SendMessageToClient("Message from server:\n>>> RecHostID: " + recHostID, recConnectionID);
+        // }
+    }
+    
+    
+    [Obsolete("Obsolete")]
+    private void UpdateNetworkConnection()
+    {
         int recHostID;
         int recConnectionID;
         var recBuffer = new byte[1024];
@@ -52,16 +78,18 @@ public class NetworkedServer : MonoBehaviour
             case NetworkEventType.Nothing:
                 break;
             case NetworkEventType.ConnectEvent:
-                Debug.Log("Connection, " + recConnectionID);
+                Debug.Log("Client connected! Connection ID: " + recConnectionID);
                 break;
             case NetworkEventType.DataEvent:
                 var msg = Encoding.Unicode.GetString(recBuffer, 0, dataSize);
                 ProcessRecievedMsg(msg, recConnectionID);
                 break;
             case NetworkEventType.DisconnectEvent:
-                Debug.Log("Disconnection, " + recConnectionID);
+                Debug.Log("Client disconnected! Connection ID: " + recConnectionID);
                 break;
         }
+        
+        SendMessageToClient("Message from server:\n>>> RecHostID: " + recHostID, recConnectionID);
     }
 
     [Obsolete]
@@ -74,13 +102,12 @@ public class NetworkedServer : MonoBehaviour
 
     private void ProcessRecievedMsg(string msg, int id)
     {
-        Debug.Log("msg recieved = " + msg + ".  connection id = " + id);
+        Debug.Log("Client (id: " + id + ") sent a message: \n>>>" + msg);
     }
 
     private void Login()
     {
     }
-
 
     private void ReadUserLoginReq(string login, string pw)
     {
